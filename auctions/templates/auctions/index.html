@@ -1,7 +1,31 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Active Listings <span style="font-size:12px"><a href="{% url 'index'%}?SortBy=Ended">(Ended Listings)</a></span></h2>
 
-    TODO
+   <div class="flex-container">
+
+    {% for listing in listing %}
+    <div class="card" style="width: 18rem;margin-top:10px;">
+        <a href="{% url 'listing' listing.id %}"> 
+            <img src="{{listing.imageurl}}" class="card-img-top" style="width: 286px; height: 200px; object-fit: cover;" alt="{{listing.title}}" >
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">{{listing.title}}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">Price: £{{listing.price}}</h6>
+          <p class="card-text">{{listing.description}}</p>
+          {% if user.is_authenticated %}
+          <form action="{% url 'watchlist' %}" method="post">
+              {% csrf_token %} 
+              <input type="submit" id="id_EntryButton" class="btn btn-primary"value="{{listing.watchliststatus}}">
+              <input type="hidden" id="id_EntryButton" name="ReturnURL" value="index">
+              <input type="hidden" id="id_EntryButton" name= "listing_id" value="{{listing.id}}">
+          </form>
+          {% endif  %}
+        </div>
+      </div>
+
+      {% endfor %}
+    </div>
+
 {% endblock %}

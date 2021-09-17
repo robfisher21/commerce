@@ -1,0 +1,34 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h2>Create</h2>
+
+    <div>
+        {% if user.is_authenticated %}
+
+        <div class="mb-3">
+            <form action="{% url 'create' %}" method="post">
+                {% csrf_token %} 
+                {{ form }} 
+                <label>Category:</label>
+                <select name="category"  style="display:block; width:100%; padding:10px; font-size:1rem; font-weight: 400; margin:0px 0 10px 0;line-height: 1.5; border:1px solid #ced4da; background-size:16px 12px; background-repeat: no-repeat; border-radius:.25rem; ">
+                    {% for category in categories %}
+                    <option value="{{category.id}}">{{category.cat_name}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" id="id_EntryButton" class="btn btn-primary" value="Create">
+            </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Log in</a> to create a new listing.
+                {% endif %}
+
+       
+        </div>
+
+
+    </div>
+
+   
+
+{% endblock %}

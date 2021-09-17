@@ -1,0 +1,175 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+{% if listing.state %}
+    {% if IsSeller %}
+        <div class="card" style="margin-bottom:10px; max-width:700px;margin-top:10px">
+            <div class="card-header">
+            <strong>Seller Information</strong>
+            </div>
+            <div class="card-body">
+            <h5 class="card-title">Active listing: {{listing.title|title}}</h5>
+            <p class="card-text">
+                {% if bid %}
+                    <strong>Current Price:</strong> £{{bid}}. <strong>Last bid from:</strong>{{MaxBidDic.bidder}} (total bids: {{bidcount}}).
+                {% else %}
+                    <strong>There are no bids.</strong>
+                {% endif %}
+            </p>
+            {% if listing.state %}
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %} 
+                    <input type="submit" id="id_EntryButton" class="btn btn-warning" value="End Auction">
+                    <input type="hidden" id="id_EntryButton" name= "statechange" value="true">
+                </form>
+            {% endif %}
+                <form action="{% url 'listing' listing.id %}" method="post">
+                    {% csrf_token %} 
+                    <input type="submit" id="id_EntryButton" class="btn btn-danger" style="margin-top:10px" value="Delete Listing">
+                    <input type="hidden" id="id_EntryButton" name= "delete" value="true">
+                </form>
+
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    {% if IsSeller %}
+    <div class="card" style="margin-bottom:10px; max-width:700px;margin-top:10px">
+        <div class="card-header">
+        <strong>Seller Information</strong>
+        </div>
+        <div class="card-body">
+        <h5 class="card-title">You successfully closed this auction. </h5>
+        <p class="card-text">
+            {% if bid %}
+            <strong>{{MaxBidDic.bidder}} won this item for £{{bid}}.
+        {% else %}
+            <strong>Unfortunately there were no bids and you item wasn't sold.</strong> 
+        {% endif %}
+        </p>
+        </div>
+    </div>
+
+    {% endif %}
+    {% if IsBidder %}
+        <div class="card" style="margin-bottom:10px; max-width:700px;margin-top:10px">
+            <div class="card-header">
+            <strong>Winner Information</strong>
+            </div>
+            <div class="card-body">
+            <h5 class="card-title">Congratulations</h5>
+            <p class="card-text">
+                You have won this item for £{{bid}}!
+                </p>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+
+
+
+<div class="card" style="display:flex;max-width:700px; margin-top:10px">
+    <img src="{{listing.imageurl}}" class="card-img-top" alt="{{listing.title}}" style=" display:flex; max-width:700px; object-fit: cover;">
+    <div class="card-body">
+      <h1 class="card-title">{{listing.title|title}}</h1>
+      <p class="card-text">{{listing.description|title}}</p>
+    </div>
+    <div class="card-body" style="padding:5px">
+{% if user.is_authenticated %}
+    <form action="{% url 'watchlist' %}" method="post">
+        {% csrf_token %} 
+        <input type="submit" id="id_EntryButton" class="btn btn-primary" value="{{watchliststatus}}">
+        <input type="hidden" id="id_EntryButton" name= "listing_id" value="{{listing.id}}">
+    </form>
+    </div>
+{% endif %}
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item"><strong>Category:</strong> {% for category in categories %}{{category}}{% endfor %}</li>
+      <li class="list-group-item"><strong>Seller:</strong> {{listing.seller}}</li>
+{% if bid %}
+      <li class="list-group-item"><strong>Current Price:</strong> £{{bid}}. <strong>Last bid from:</strong>{{MaxBidDic.bidder}} (total bids: {{bidcount}}).</li>
+    {% else %}
+    <li class="list-group-item"><strong>Current Price:</strong> £{{listing.startingbid}}.<strong>There are no bids, be the first!!</strong><li>
+{% endif %}
+    </ul>
+    <div class="card-body">
+{% if user.is_authenticated %}
+    {% if listing.state %}
+        <form action="{% url 'listing' listing.id %}" method="post">
+            {% csrf_token %} 
+            {{bidform}}
+            <input type="submit" id="id_EntryButton" class="btn btn-primary" value="BidEntered">
+        </form>
+    {% endif %}
+{% else %}
+    <li class="list-group-item"><a href="{% url 'login' %}" >Log In</a> to bid.</li>
+{% endif %}
+
+   </div>
+  </div>
+
+
+  <div class="card" style="display:flex;max-width:700px;margin-top:10px">
+
+  <h1 style="margin-left:10px; margin-top:10px">Comments: </h1>
+  
+  {%if CommentSortOrder %}
+          <p style="text-align: center;"><strong>Most Recent</strong> | <a href="{% url 'listing' listing.id %}?SortBy=Most_Popular"}>Most Popular</a></p>
+      {% else %}
+          <p style="text-align: center;"><a href="{% url 'listing' listing.id %}?SortBy=Most_Recent"}>Most Recent</a> | <strong>Most Popular</strong></p>
+  {% endif %}
+  
+
+  {% for comment in comments %}
+  <div class="card" style="margin:10px">
+   
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <p style="font-style:italic;">"{{comment.comment}}"</p>
+        <footer class="blockquote-footer">By {{comment.user|title}} on <cite title="Source Title">{{comment.datetime}}</cite></footer>
+        <p style="margin-bottom:5px">Likes: {{comment.votes}}</p>
+    </blockquote>
+      <form action="{% url 'comment' listing.id %}" method="post">
+        {% csrf_token %} 
+        <input type="submit" id="id_EntryButton" name ="vote" value="+">
+        <input type="submit" id="id_EntryButton" name ="vote" value="-">
+        <input type="hidden" name="comment_id" value="{{comment.id}}">
+    </form>
+    </div>
+  </div>
+
+  {% empty %}
+  
+
+   
+    <div class="card-body">
+      <blockquote class="blockquote mb-0">
+        <p>There are no comments. Be the first :)</p>
+       </blockquote>
+    </div>
+
+  {% endfor %}
+  
+  <h2 style="margin-left:10px; margin-top:10px">Add your comment:</h2>
+
+  <div class="card" style="margin:10px">
+   
+    <div class="card-body">
+
+        {% if user.is_authenticated %}
+        <form action="{% url 'comment' listing.id %}" method="post">
+            {% csrf_token %} 
+            {{commentform}}
+            <input type="submit" id="id_EntryButton" class="btn btn-primary" value="Comment" style="display:block; clear:both;">
+            </form>
+    {% else %}
+        <p><a href="{% url 'login' %}">Log In</a> to comment on this item! </p>
+    {% endif %}
+ </div>
+
+
+{% endblock %}
+
+
+

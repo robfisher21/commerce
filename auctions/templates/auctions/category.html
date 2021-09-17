@@ -1,0 +1,27 @@
+
+
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Category: {{category.cat_name}}</h2>
+
+    <div class="flex-container">
+   {% for item in category.cat_items.all %}
+    <div class="card" style="width: 18rem;margin-top:10px;">
+        <a href="{% url 'listing' item.id %}"> 
+            <img src="{{item.imageurl}}" class="card-img-top" style="width: 286px; height: 200px; object-fit: cover;" alt="{{item.title|title}}"></a>
+        <div class="card-body">
+          <h5 class="card-title">{{item.title|title}}</h5>
+          <p class="card-text">{{item.description|title}}</p>
+        </div>
+      </div>
+      {%empty %}
+ 
+      <div style="width:500px">
+        <h5><strong>No Items for sale. </strong></h5>
+        <h6>If you have one, list one <a href="{% url 'create' %}"> now</a>.</h6>
+      </div>
+      {% endfor %}
+    </div>
+
+{% endblock %}

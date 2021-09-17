@@ -1,0 +1,33 @@
+
+
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>{{watchlist.user|title}}'s Watchlist: ({{watchlist_count}})</h2>
+
+    <div class="flex-container">
+{% for item in watchlist.items.all %}
+    <div class="card" style="width: 18rem;margin-top:10px;">
+        <a href="{% url 'listing' item.id %}"> 
+            <img src="{{item.imageurl}}" class="card-img-top" style="width: 286px; height: 200px; object-fit: cover;" alt="{{item.title|title}}"" >
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">{{item.title|title}}</h5>
+           <p class="card-text">{{item.description|title}}</p>
+          {% if user.is_authenticated %}
+          <form action="{% url 'watchlist' %}" method="post">
+            {% csrf_token %} 
+            <input type="submit" id="id_EntryButton" class="btn btn-primary" value="Remove">
+            <input type="hidden" id="id_EntryButton" name="ReturnURL" value="watchlist">
+            <input type="hidden" id="id_EntryButton" name= "listing_id" value="{{item.id}}">
+        </form>
+          {% endif  %}
+        </div>
+      </div>
+{%empty%}
+      <h5> You have no items in your Watchlist.</h5>
+{% endfor %}
+    </div>
+
+{% endblock %}
+
